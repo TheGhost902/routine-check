@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form id="loginForm" action="login">
+        <input type="text" placeholder="Login">
+        <input type="password" placeholder="password">
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        
+        const loginForm = document.getElementById('loginForm')
+
+        loginForm.addEventListener('submit', async e => {
+            e.preventDefault()
+
+            const userData = {
+                login: loginForm[0].value,
+                password: loginForm[1].value
+            }
+
+            const json = JSON.stringify(userData)
+
+            // debugger
+
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: json
+                })
+
+                alert(await response.json())
+            } catch (err) {
+                console.error(err)
+            }
+
+            
+        })
+
+    </script>
+</body>
+</html>

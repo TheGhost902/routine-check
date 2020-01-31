@@ -1,0 +1,35 @@
+{
+  "name": "routine-check",
+  "version": "1.0.0",
+  "description": "helps to remember routine affairs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheGhost902/routine-check.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongoose",
+    "react"
+  ],
+  "author": "TheGhost902",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TheGhost902/routine-check/issues"
+  },
+  "homepage": "https://github.com/TheGhost902/routine-check#readme",
+  "dependencies": {
+    "config": "^3.2.5",
+    "express": "^4.17.1",
+    "mongoose": "^5.8.10"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "nodemon": "^2.0.2"
+  }
+}
