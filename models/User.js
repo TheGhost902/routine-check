@@ -14,7 +14,7 @@ const userSchema = new Schema({
         maxlength: 30,
         minlength: 6
     },
-    routines: Array
+    routines: Array[Schema.Types.ObjectId]
 })
 
 module.exports = model('User', userSchema)
