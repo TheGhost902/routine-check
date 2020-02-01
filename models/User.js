@@ -11,6 +11,8 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true,
+        maxlength: 30,
+        minlength: 6
     },
     routines: Array
 })
