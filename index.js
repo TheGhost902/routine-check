@@ -8,11 +8,6 @@ const app = express()
 app.use(express.static('client'))
 app.use(express.json())
 
-app.use((req, res, next) => {
-    console.log(req.body)
-    next()
-})
-
 app.use('/auth', require('./routes/auth.routes'))
 
 
