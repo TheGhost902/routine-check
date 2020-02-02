@@ -1,4 +1,4 @@
-// login and passwor validation middleware
+// login and password validation middleware
 // add a boolean "validation" field to req.body
 
 const allowedCharsInLogin = ['A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G',
@@ -11,7 +11,7 @@ function checkLogin(login) {
     if (typeof login !== 'string') return false // type must be string
     if (login.length < 3) return false // length must be more than or equal to 3 characters
     if (login.length > 30) return false // length must be less than 30 characters
-    if (Number.isNaN(parseInt(login[0], 10))) return false // first character must be letter
+    if (!Number.isNaN(parseInt(login[0], 10))) return false // first character must be letter
 
     for (let char of login) {
         if (!allowedCharsInLogin.includes(char)) return false // all characters must be allowed
@@ -24,7 +24,7 @@ const allowedCharsInPassword = [...allowedCharsInLogin, '!', '_', '@', '$', '%',
 
 function checkPassword(password) {
     if (typeof password !== 'string') return false // type must be string
-    if (password.length < 3) return false // length must be more than or equal to 3 characters
+    if (password.length < 6) return false // length must be more than or equal to 6 characters
     if (password.length > 30) return false // length must be less than 30 characters
 
     for (let char of password) {
@@ -37,7 +37,7 @@ function checkPassword(password) {
 module.exports = (req, res, next) => {
     if (req.body.login && req.body.password) {
         const { login, password } = req.body
-
+        
         if (checkLogin(login) && checkPassword(password)) {
             req.body.validation = true
         } else {

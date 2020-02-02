@@ -11,10 +11,12 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true,
-        maxlength: 30,
-        minlength: 6
     },
-    routines: Array[Schema.Types.ObjectId]
+    routines: [{type: Schema.Types.ObjectId, ref: 'Routine'}],
+    refreshToken: {
+        type: String,
+        required: true
+    }
 })
 
 module.exports = model('User', userSchema)

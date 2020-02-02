@@ -10,7 +10,7 @@
     <form id="loginForm" action="login">
         <input type="text" placeholder="Login">
         <input type="password" placeholder="password">
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
     </form>
 
     <script>
@@ -27,8 +27,6 @@
 
             const json = JSON.stringify(userData)
 
-            // debugger
-
             try {
                 const response = await fetch('/auth/register', {
                     method: 'POST',
@@ -38,12 +36,12 @@
                     body: json
                 })
 
-                alert(await response.json())
+                const { message } = await response.json()
+
+                alert(message)
             } catch (err) {
                 console.error(err)
             }
-
-            
         })
 
     </script>
