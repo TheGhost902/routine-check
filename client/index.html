@@ -7,28 +7,42 @@
     <title>Document</title>
 </head>
 <body>
-    <form id="loginForm" action="login">
+    <form id="registerForm">
+        <h2>Registration: </h2>
         <input type="text" placeholder="Login">
         <input type="password" placeholder="password">
         <button type="submit">Register</button>
     </form>
 
+    <form id="loginForm">
+        <h2>Login: </h2>
+        <input type="text" placeholder="Login">
+        <input type="password" placeholder="password">
+        <button type="submit">login</button>
+    </form>
+
+    <hr>
+
+    <button id="testButton">Test</button>
+
     <script>
         
+        const registerForm = document.getElementById('registerForm')
         const loginForm = document.getElementById('loginForm')
+        const testButton = document.getElementById('testButton')
 
-        loginForm.addEventListener('submit', async e => {
-            e.preventDefault()
+        let accessToken
 
+        async function fetchData(form, url) {
             const userData = {
-                login: loginForm[0].value,
-                password: loginForm[1].value
+                login: form[0].value,
+                password: form[1].value
             }
 
             const json = JSON.stringify(userData)
 
             try {
-                const response = await fetch('/auth/register', {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-type': 'application/json'
@@ -36,11 +50,47 @@
                     body: json
                 })
 
-                const { message } = await response.json()
+                const { message, token } = await response.json()
+
+                accessToken = token
 
                 alert(message)
             } catch (err) {
                 console.error(err)
+            }
+        }
+
+        registerForm.addEventListener('submit', async e => {
+            e.preventDefault()
+
+            fetchData(registerForm, '/auth/register')            
+        })
+
+        loginForm.addEventListener('submit', async e => {
+            e.preventDefault()
+
+            fetchData(loginForm, '/auth/login')            
+        })
+
+        testButton.addEventListener('click', async () => {
+            const data = {
+                token: accessToken
+            }
+
+            try {
+                const response = await fetch('/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+
+                const { message } = await response.json()
+                
+                alert(message)
+            } catch (err) {
+                console.log(err)
             }
         })
 
