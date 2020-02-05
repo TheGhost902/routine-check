@@ -1,7 +1,8 @@
 // Authorization router '/auth...'
 // routes: 
 //      POST '/login' - login in app, return access and refresh tokens + message for user
-//      POST '/register - register in app, return access and refresh tokens + message for user
+//      POST '/register' - register in app, return access and refresh tokens + message for user
+//      POST '/refreshtokens' - update access and refresh tokens, return tokens
 
 const { Router } = require('express')
 const jwt = require('jsonwebtoken')
