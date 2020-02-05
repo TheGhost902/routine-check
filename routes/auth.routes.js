@@ -11,6 +11,13 @@ const User = require('../models/User')
 
 const router = Router()
 
+function createToken(user) {
+    return jwt.sign({userId: user._id}, config.get('jwtSecret'), {expiresIn: '1m'})
+}
+function createRefreshToken(user) {
+    return jwt.sign({login: user.login}, config.get('jwtSecret'), {expiresIn: '1d'})
+}
+
 router.use(require('../middleware/validation'))
 
 router.post('/login', async (req, res) => {
@@ -34,8 +41,8 @@ router.post('/login', async (req, res) => {
 
         // prepare new access and refresh tokens
         const dataToSend = {
-            token: jwt.sign({userId: user._id}, config.get('jwtSecret'), {expiresIn: '5m'}),
-            refreshToken: jwt.sign({login: user.login}, config.get('jwtSecret'), {expiresIn: '1d'}),
+            token: createToken(user),
+            refreshToken: createRefreshToken(user),
             login: user.login
         }
 
@@ -69,11 +76,11 @@ router.post('/register', async (req, res) => {
             const user = new User({
                 login: req.body.login,
                 password: hash.sha256().update(req.body.password + config.get('passwordSecret')).digest('hex'),
-                refreshToken: jwt.sign({login: req.body.login}, config.get('jwtSecret'), {expiresIn: '1d'})
+                refreshToken: createRefreshToken(req.body)
             })
 
-            const userData = await user.save()
-            const token = jwt.sign({userId: userData._id}, config.get('jwtSecret'), {expiresIn: '5m'})
+            await user.save()
+            const token = createToken(user)
 
             // send tokens and message to user
             return res.json({
@@ -88,6 +95,51 @@ router.post('/register', async (req, res) => {
 
     } catch (err) {
         return res.status(500).json({message: 'Some Server Error...'})
+    }
+})
+
+router.post('/refreshtokens', async (req, res) => {
+    try {
+        const { refreshToken } = req.body
+
+        // refresh token availability check
+        if (!refreshToken) {
+            return res.status(401).json({message: 'Invalid authorization, please log in again'})
+        }
+
+        try {
+            // try to verify a token
+            const payload = jwt.verify(refreshToken, config.get('jwtSecret'))
+
+            // search a token owner
+            const user = await User.findOne({login: payload.login})
+            if (!user) {
+                return res.status(400).json({message: 'Invalid authorization, please log in again'})
+            }
+
+            // tokens matching
+            if (user.refreshToken !== refreshToken) {
+                return res.status(401).json({message: 'You need to log in'})
+            }
+
+            // create and updete tokens
+            const updatedTokens = {
+                token: createToken(user),
+                refreshToken: createRefreshToken(user)
+            }
+
+            user.refreshToken = updatedTokens.refreshToken
+            await user.save()
+
+            return res.json(updatedTokens)
+
+        } catch (err) {
+            // if token verify is failed
+            return res.status(401).json({message: 'You need to log in'})
+        }
+
+    } catch (err) {
+        return res.status(500).json({message: 'Some Server Error'})
     }
 })
 

@@ -32,6 +32,7 @@
         const testButton = document.getElementById('testButton')
 
         let accessToken
+        let fetchedRefreshToken
 
         async function fetchData(form, url) {
             const userData = {
@@ -50,13 +51,43 @@
                     body: json
                 })
 
-                const { message, token } = await response.json()
+                const { message, token, refreshToken } = await response.json()
 
                 accessToken = token
+                fetchedRefreshToken = refreshToken
 
                 alert(message)
             } catch (err) {
                 console.error(err)
+            }
+        }
+
+        async function refreshAllTokens() {
+            try {
+                const refToks = await fetch('/auth/refreshtokens', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({ refreshToken: fetchedRefreshToken })
+                })
+
+                const tokens = await refToks.json()
+
+                if (tokens.message) {
+                    alert(tokens.message)
+
+                    return false
+                }
+
+                accessToken = tokens.token
+                fetchedRefreshToken = tokens.refreshToken
+
+                console.log('TOKENS UPDATED')
+                return true
+            } catch (err) {
+                console.log(err)
+                return false
             }
         }
 
@@ -78,13 +109,27 @@
             }
 
             try {
-                const response = await fetch('/test', {
+                let response = await fetch('/test', {
                     method: 'POST',
                     headers: {
                         'Content-type': 'application/json'
                     },
                     body: JSON.stringify(data)
                 })
+
+                if (response.status === 401) {
+                    if (!await refreshAllTokens()) {
+                        return
+                    }
+
+                    let response = await fetch('/test', {
+                        method: 'POST',
+                        headers: {
+                            'Content-type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                }
 
                 const { message } = await response.json()
                 
