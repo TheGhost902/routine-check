@@ -75,7 +75,7 @@
                 const tokens = await refToks.json()
 
                 if (tokens.message) {
-                    alert(tokens.message)
+                    alert('from tokens.message: ' + tokens.message)
 
                     return false
                 }
@@ -104,9 +104,6 @@
         })
 
         testButton.addEventListener('click', async () => {
-            const data = {
-                token: accessToken
-            }
 
             try {
                 let response = await fetch('/test', {
@@ -114,7 +111,7 @@
                     headers: {
                         'Content-type': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({token: accessToken})
                 })
 
                 if (response.status === 401) {
@@ -122,12 +119,12 @@
                         return
                     }
 
-                    let response = await fetch('/test', {
+                    response = await fetch('/test', {
                         method: 'POST',
                         headers: {
                             'Content-type': 'application/json'
                         },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify({token: accessToken})
                     })
                 }
 

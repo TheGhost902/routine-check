@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 const config = require('config')
 const hash = require('hash.js')
 const User = require('../models/User')
+const validationMiddleware = require('../middleware/validation')
 
 const router = Router()
 
@@ -18,9 +19,7 @@ function createRefreshToken(user) {
     return jwt.sign({login: user.login}, config.get('jwtSecret'), {expiresIn: '1d'})
 }
 
-router.use(require('../middleware/validation'))
-
-router.post('/login', async (req, res) => {
+router.post('/login', validationMiddleware, async (req, res) => {
     try {
         // login and password fields validation (from validation middleware)
         if (!req.body.validation) {
@@ -61,7 +60,7 @@ router.post('/login', async (req, res) => {
     }    
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', validationMiddleware, async (req, res) => {
     try {
         // login and password fields validation (from validation middleware)
         if (!req.body.validation) {
@@ -102,7 +101,7 @@ router.post('/refreshtokens', async (req, res) => {
     try {
         const { refreshToken } = req.body
 
-        // refresh token availability check
+        // refreshtoken availability check
         if (!refreshToken) {
             return res.status(401).json({message: 'Invalid authorization, please log in again'})
         }
