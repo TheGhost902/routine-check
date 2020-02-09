@@ -43,7 +43,7 @@ router.post('/login', validationMiddleware, async (req, res) => {
         const dataToSend = {
             token: createToken(user),
             refreshToken: createRefreshToken(user),
-            login: user.login
+            userId: user._id
         }
 
         // update refresh token in db
@@ -86,6 +86,7 @@ router.post('/register', validationMiddleware, async (req, res) => {
             return res.json({
                 token,
                 refreshToken: user.refreshToken,
+                userId: user._id,
                 message: 'Successful registration'
             })
         }
