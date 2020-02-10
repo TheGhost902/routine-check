@@ -1,8 +1,8 @@
 // Authorization router '/auth...'
 // routes: 
-//      POST '/login' - login in app, return access and refresh tokens + message for user
-//      POST '/register' - register in app, return access and refresh tokens + message for user
-//      POST '/refreshtokens' - update access and refresh tokens, return tokens
+//      POST '/login' - login in app, set access and refresh tokens in cookie, return message and user id
+//      POST '/register' - register in app, set access and refresh tokens in cookie, return message and user id
+//      any '/refreshtokens' - update access and refresh tokens, set tokens in cookie, redirect back
 
 const { Router } = require('express')
 const jwt = require('jsonwebtoken')
@@ -14,10 +14,25 @@ const validationMiddleware = require('../middleware/validation')
 const router = Router()
 
 function createToken(user) {
-    return jwt.sign({userId: user._id}, config.get('jwtSecret'), {expiresIn: '1m'})
+    return jwt.sign({userId: user._id}, config.get('jwtSecret'), {expiresIn: config.get('accessTokenTime')})
 }
 function createRefreshToken(user) {
-    return jwt.sign({login: user.login}, config.get('jwtSecret'), {expiresIn: '1d'})
+    return jwt.sign({login: user.login}, config.get('jwtSecret'), {expiresIn: config.get('refreshTokenTime')})
+}
+function setCookie(res, token, refreshToken) {
+    res
+        .cookie(
+            'access_token',
+            token,
+            {sameSite: true, httpOnly: true}
+        )
+        .cookie(
+            'refresh_token',
+            refreshToken,
+            {sameSite: true, path: '/auth/refreshtokens', httpOnly: true}
+        )
+
+    return res
 }
 
 router.post('/login', validationMiddleware, async (req, res) => {
@@ -39,22 +54,16 @@ router.post('/login', validationMiddleware, async (req, res) => {
             return res.status(400).json({message: 'Not correct Login or Password'})
         }
 
-        // prepare new access and refresh tokens
-        const dataToSend = {
-            token: createToken(user),
-            refreshToken: createRefreshToken(user),
-            userId: user._id
-        }
-
         // update refresh token in db
-        user.refreshToken = dataToSend.refreshToken
+        user.refreshToken = createRefreshToken(user)
         await user.save()
 
-        // send tokens and message to user
-        return res.json({
-            ...dataToSend,
-            message: 'Login successful'
-        })
+        // set tokens in cookie, send message and id to user
+        return setCookie(res, createToken(user), user.refreshToken)
+            .json({
+                userId: user._id,
+                message: 'Login successful'
+            })
 
     } catch (err) {
         return res.status(500).json({message: 'Some Server Error...'})
@@ -82,13 +91,12 @@ router.post('/register', validationMiddleware, async (req, res) => {
             await user.save()
             const token = createToken(user)
 
-            // send tokens and message to user
-            return res.json({
-                token,
-                refreshToken: user.refreshToken,
-                userId: user._id,
-                message: 'Successful registration'
-            })
+            // set tokens in cookies, send message and id to user
+            return setCookie(res, token, user.refreshToken)
+                .json({
+                    userId: user._id,
+                    message: 'Successful registration'
+                })
         }
 
         // if user already exists, send error message
@@ -99,9 +107,9 @@ router.post('/register', validationMiddleware, async (req, res) => {
     }
 })
 
-router.post('/refreshtokens', async (req, res) => {
+router.use('/refreshtokens', async (req, res) => {
     try {
-        const { refreshToken } = req.body
+        const refreshToken = req.cookies['refresh_token']
 
         // refreshtoken availability check
         if (!refreshToken) {
@@ -123,19 +131,17 @@ router.post('/refreshtokens', async (req, res) => {
                 return res.status(401).json({message: 'You need to log in'})
             }
 
-            // create and updete tokens
-            const updatedTokens = {
-                token: createToken(user),
-                refreshToken: createRefreshToken(user)
-            }
-
-            user.refreshToken = updatedTokens.refreshToken
+            // create and updete refresh token
+            user.refreshToken = createRefreshToken(user)
             await user.save()
 
-            return res.json(updatedTokens)
-
+            // set tokens in cookies, and redirect back
+            return setCookie(res, createToken(user), user.refreshToken)
+                .clearCookie('from')
+                .redirect(req.cookies.from)
         } catch (err) {
             // if token verify is failed
+            console.log(err)
             return res.status(401).json({message: 'You need to log in'})
         }
 

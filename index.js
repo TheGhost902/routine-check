@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const config = require('config')
+const cookieParser = require('cookie-parser')
 
 const authorization = require('./middleware/authorization')
 
@@ -9,6 +10,7 @@ const app = express()
 
 app.use(express.static('client'))
 app.use(express.json())
+app.use(cookieParser())
 
 app.use('/auth', require('./routes/auth.routes'))
 
@@ -17,7 +19,7 @@ app.get('/test', authorization, (req, res) => {
         return res.json({message: 'All is OK!'})
     } 
 
-    return res.status(401).json({message: 'You are not logged in'})
+    return res.status(401).json({message: 'freom /test: You are not logged in'})
 })
 
 

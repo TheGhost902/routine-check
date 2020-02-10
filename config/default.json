@@ -1,5 +1,7 @@
 {
     "mongoUri": "mongodb+srv://devUser:somePassword@routine-check-cluster-k4eok.mongodb.net/routine-check?retryWrites=true&w=majority",
     "jwtSecret": "ahalai-mahalai",
-    "passwordSecret": "mumbaka"
+    "passwordSecret": "mumbaka",
+    "accessTokenTime": "1m",
+    "refreshTokenTime": "50m"
 }

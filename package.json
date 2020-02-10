@@ -25,6 +25,7 @@
   "homepage": "https://github.com/TheGhost902/routine-check#readme",
   "dependencies": {
     "config": "^3.2.5",
+    "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "hash.js": "^1.1.7",
     "jsonwebtoken": "^8.5.1",

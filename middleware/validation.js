@@ -35,7 +35,7 @@ function checkPassword(password) {
 }
 
 module.exports = (req, res, next) => {
-    if (req.body.login && req.body.password) {
+    if (req.body.login !== undefined && req.body.password !== undefined) {
         const { login, password } = req.body
         
         if (checkLogin(login) && checkPassword(password)) {

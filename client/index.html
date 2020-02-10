@@ -107,26 +107,11 @@
 
             try {
                 let response = await fetch('/test', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         'Content-type': 'application/json'
                     },
-                    body: JSON.stringify({token: accessToken})
                 })
-
-                if (response.status === 401) {
-                    if (!await refreshAllTokens()) {
-                        return
-                    }
-
-                    response = await fetch('/test', {
-                        method: 'POST',
-                        headers: {
-                            'Content-type': 'application/json'
-                        },
-                        body: JSON.stringify({token: accessToken})
-                    })
-                }
 
                 const { message } = await response.json()
                 
