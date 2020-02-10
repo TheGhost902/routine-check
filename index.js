@@ -12,7 +12,7 @@ app.use(express.json())
 
 app.use('/auth', require('./routes/auth.routes'))
 
-app.post('/test', authorization, (req, res) => {
+app.get('/test', authorization, (req, res) => {
     if (req.authorized) {
         return res.json({message: 'All is OK!'})
     } 
