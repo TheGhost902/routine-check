@@ -2,12 +2,14 @@ const express = require('express')
 const mongoose = require('mongoose')
 const config = require('config')
 const cookieParser = require('cookie-parser')
+const morgan = require('morgan')
 
 const authorization = require('./middleware/authorization')
 
 const PORT = process.env.PORT || 3001
 const app = express()
 
+app.use(morgan('dev'))
 app.use(express.static('client'))
 app.use(express.json())
 app.use(cookieParser())
