@@ -16,10 +16,10 @@ app.use('/auth', require('./routes/auth.routes'))
 
 app.get('/test', authorization, (req, res) => {
     if (req.authorized) {
-        return res.json({message: 'All is OK!'})
+        return res.json({routines: ['check email', 'clear garage', 'buy new socks']})
     } 
 
-    return res.status(401).json({message: 'freom /test: You are not logged in'})
+    return res.status(401).json({message: 'from /test: You are not logged in'})
 })
 
 
