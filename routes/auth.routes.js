@@ -141,7 +141,6 @@ router.use('/refreshtokens', async (req, res) => {
                 .redirect(req.cookies.from)
         } catch (err) {
             // if token verify is failed
-            console.log(err)
             return res.status(401).json({message: 'You need to log in'})
         }
 

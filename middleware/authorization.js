@@ -24,8 +24,6 @@ module.exports = (req, res, next) => {
             return res
                 .cookie('from', req.path)
                 .redirect('/auth/refreshtokens')
-
-            // return next()
         }
     }
 
