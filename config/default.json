@@ -3,5 +3,5 @@
     "jwtSecret": "ahalai-mahalai",
     "passwordSecret": "mumbaka",
     "accessTokenTime": "1m",
-    "refreshTokenTime": "2m"
+    "refreshTokenTime": "50m"
 }

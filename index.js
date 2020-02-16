@@ -15,6 +15,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/auth', require('./routes/auth.routes'))
+app.use('/routines', require('./routes/routines.routes'))
 
 app.get('/test', authorization, (req, res) => {
     if (req.authorized) {
@@ -42,3 +43,9 @@ async function start() {
     }
 }
 start()
+
+process.on('SIGINT', async () => {
+    await mongoose.connection.close()
+    console.log('Disconnected from DB')
+    process.exit()
+})

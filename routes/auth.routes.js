@@ -138,7 +138,7 @@ router.use('/refreshtokens', async (req, res) => {
             // set tokens in cookies, and redirect back
             return setCookie(res, createToken(user), user.refreshToken)
                 .clearCookie('from')
-                .redirect(req.cookies.from)
+                .redirect(307, req.cookies.from)
         } catch (err) {
             // if token verify is failed
             return res.status(401).json({message: 'You need to log in'})
