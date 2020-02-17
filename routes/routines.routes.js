@@ -14,12 +14,12 @@ router.post('/add', async (req, res) => {
     if (req.body.value.includes(' ')) valid = false
     if (req.body.value === '0') valid = false
     if (!valid) {
-        return res.json({message: 'Not valid title or repeat field'})
+        return res.status(400).json({message: 'Not valid title or repeat field'})
     }
 
     // get user from db, add new routine, connect routine to user
     try {
-        const user = await User.findById(req.userId)
+        const user = await User.findById(req.authorized)
         if (!user) {
             return res.status(401).json({message: 'You need to login'})            
         }
@@ -33,11 +33,61 @@ router.post('/add', async (req, res) => {
 
         return res.json({
             message: 'Routine added',
-            routineId: routine._id
+            routine: routine
         })
 
     } catch (err) {
         return res.status(500).json({message: 'Some Server Error...'})
+    }
+})
+
+router.get('/', async (req, res) => {
+    try {
+        const user = await User.findById(req.authorized)
+        if (!user) {
+            return res.status(401).json({ message: 'You need to login' })
+        }
+
+        const routines = await Routine.find({ userId: user._id })
+
+        return res.json({ routines })
+
+    } catch (err) {
+        return res.status(500).json({message: 'Some Server Error...'})
+    }
+})
+
+router.delete('/', async(req, res) => {
+    try {
+        const { routineId } = req.body
+        const userId = req.authorized
+
+        if (!routineId) {
+            return res.status(400).json({ message: 'Not correct requiest' })
+        }
+
+        const routine = await Routine.findById(routineId)
+        if (!routine) {
+            return res.status(400).json({ message: 'Routine already deleted' })
+        }
+
+        if (routine.userId.toString() !== userId) {
+            return res.status(401).json({ message: 'You need to login' })
+        }
+
+        const report = await Routine.deleteOne({ _id: routineId })
+        if (report.deletedCount !== 1) {
+            return res.status(400).json({ message: 'Something went wrong' })
+        }
+
+        return res.json({
+            message: 'Routine Deleted',
+            routineId
+        })
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Some Server Error...' })
     }
 })
 

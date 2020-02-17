@@ -1,6 +1,5 @@
 // Access token verification middleware
-// add a boolean "authorized" field to req
-// add "userId" field to req with user id
+// add "authorized" field to req, with user id if all is good
 // if token invalid, redirect to '/auth/refreshtokens'
 
 const jwt = require('jsonwebtoken')
@@ -18,13 +17,12 @@ module.exports = (req, res, next) => {
 
             // if verification successful, set authorized field to true
             // and add user id to req
-            req.authorized = true
-            req.userId = userId
+            req.authorized = userId
 
             return next()
         } catch (err) {
             // if verification failed, set authorized field to false and redirect
-            req.authorized = false
+            req.authorized = null
             
             return res
                 .cookie('from', req.originalUrl)
@@ -33,7 +31,7 @@ module.exports = (req, res, next) => {
     }
 
     // if have no token, set authorized field to false, and redirect
-    req.authorized = false
+    req.authorized = null
 
     return res
         .cookie('from', req.path)

@@ -25,6 +25,10 @@ app.get('/test', authorization, (req, res) => {
     return res.status(401).json({message: 'from /test: You are not logged in'})
 })
 
+app.use((req, res) => {
+    res.redirect('/')
+})
+
 
 async function start() {
     try {
