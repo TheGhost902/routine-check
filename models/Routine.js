@@ -19,6 +19,10 @@ const routineSchema = new Schema({
         type: [Date],
         required: true,
         default: []
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     }
 })
 

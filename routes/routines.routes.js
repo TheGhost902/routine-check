@@ -24,7 +24,7 @@ router.post('/add', async (req, res) => {
         const routine = new Routine({
             title: req.body.title,
             value: req.body.value,
-
+            userId: user._id
         })
         await routine.save()
 
