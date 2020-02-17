@@ -20,6 +20,9 @@ router.post('/add', async (req, res) => {
     // get user from db, add new routine, connect routine to user
     try {
         const user = await User.findById(req.userId)
+        if (!user) {
+            return res.status(401).json({message: 'You need to login'})            
+        }
 
         const routine = new Routine({
             title: req.body.title,
@@ -27,9 +30,6 @@ router.post('/add', async (req, res) => {
             userId: user._id
         })
         await routine.save()
-
-        user.routines.push(routine._id)
-        await user.save()
 
         return res.json({
             message: 'Routine added',

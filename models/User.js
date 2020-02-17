@@ -12,7 +12,6 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
-    routines: [{type: Schema.Types.ObjectId, ref: 'Routine'}],
     refreshToken: {
         type: String,
         required: true
