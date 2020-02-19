@@ -15,7 +15,7 @@ const routineSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    failed: {
+    done: {
         type: [Date],
         required: true,
         default: []
