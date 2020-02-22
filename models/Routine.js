@@ -12,11 +12,11 @@ const routineSchema = new Schema({
         minlength: 1
     },
     created: {
-        type: Date,
-        default: Date.now
+        type: String,
+        required: true
     },
     done: {
-        type: [Date],
+        type: [String],
         required: true,
         default: []
     },

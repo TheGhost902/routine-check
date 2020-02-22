@@ -5,6 +5,16 @@ const User = require('../models/User')
 
 const router = Router()
 
+function createFormattedDate() {
+    const created = new Date()
+    created.setHours(0)
+    created.setMinutes(0)
+    created.setSeconds(0)
+    created.setMilliseconds(0)
+
+    return created.toString()
+}
+
 router.use(authorization)
 
 router.post('/add', async (req, res) => {
@@ -27,7 +37,8 @@ router.post('/add', async (req, res) => {
         const routine = new Routine({
             title: req.body.title,
             value: req.body.value,
-            userId: user._id
+            userId: user._id,
+            created: createFormattedDate()
         })
         await routine.save()
 
@@ -68,11 +79,11 @@ router.delete('/', async(req, res) => {
 
         const routine = await Routine.findById(routineId)
         if (!routine) {
-            return res.status(400).json({ message: 'Routine already deleted' })
+            return res.status(404).json({ message: 'Routine not found' })
         }
 
         if (routine.userId.toString() !== userId) {
-            return res.status(401).json({ message: 'You need to login' })
+            return res.status(404).json({ message: 'Routine not found' })
         }
 
         const report = await Routine.deleteOne({ _id: routineId })
@@ -86,7 +97,33 @@ router.delete('/', async(req, res) => {
         })
 
     } catch (err) {
-        console.log(err)
+        return res.status(500).json({ message: 'Some Server Error...' })
+    }
+})
+
+router.post('/done', async(req, res) => {
+    try {
+        const { routineId } = req.body
+        const userId = req.authorized
+
+        if (!routineId) {
+            return res.status(400).json({ message: 'Not correct requiest' })
+        }
+
+        const routine = await Routine.findById(routineId)
+        if (!routine) {
+            return res.status(404).json({message: 'Routine not found'})
+        }
+
+        if (routine.userId.toString() !== userId) {
+            return res.status(404).json({message: 'Routine not found'})
+        }
+
+        routine.done.push(createFormattedDate())
+        await routine.save()
+
+        return res.json({message: 'Routine Done', routine})
+    } catch (err) {
         return res.status(500).json({ message: 'Some Server Error...' })
     }
 })
