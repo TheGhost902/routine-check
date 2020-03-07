@@ -39,19 +39,19 @@ router.post('/login', validationMiddleware, async (req, res) => {
     try {
         // login and password fields validation (from validation middleware)
         if (!req.body.validation) {
-            return res.status(400).json({message: 'Not valid Login or Password'})
+            return res.status(400).json({message: {text: 'Not valid Login or Password', type: 'error'}})
         }
 
         // find user in database
         const user = await User.findOne({login: req.body.login})
         if (!user) {
-            return res.status(400).json({message: 'Not correct Login or Password'})
+            return res.status(400).json({message: {text: 'Not correct Login or Password', type: 'error'}})
         }
 
         // chech user password
         const passwordHash = hash.sha256().update(req.body.password + config.get('passwordSecret')).digest('hex')
         if (passwordHash !== user.password) {
-            return res.status(400).json({message: 'Not correct Login or Password'})
+            return res.status(400).json({ message: { text: 'Not correct Login or Password', type: 'error' }})
         }
 
         // update refresh token in db
@@ -62,11 +62,14 @@ router.post('/login', validationMiddleware, async (req, res) => {
         return setCookie(res, createToken(user), user.refreshToken)
             .json({
                 userId: user._id,
-                message: 'Login successful'
+                message: {
+                    text: 'Login successful',
+                    type: 'success'
+                }
             })
 
     } catch (err) {
-        return res.status(500).json({message: 'Some Server Error...'})
+        return res.status(500).json({message: {text: 'Some Server Error...', type: 'error'}})
     }    
 })
 
@@ -74,7 +77,7 @@ router.post('/register', validationMiddleware, async (req, res) => {
     try {
         // login and password fields validation (from validation middleware)
         if (!req.body.validation) {
-            return res.status(400).json({message: 'Not valid Login or Password'})
+            return res.status(400).json({ message: {text: 'Not valid Login or Password', type: 'error'}})
         }
 
         // find user in database
@@ -95,15 +98,18 @@ router.post('/register', validationMiddleware, async (req, res) => {
             return setCookie(res, token, user.refreshToken)
                 .json({
                     userId: user._id,
-                    message: 'Successful registration'
+                    message: {
+                        text: 'Successful registration',
+                        type: 'success'
+                    }
                 })
         }
 
         // if user already exists, send error message
-        return res.status(400).json({message: 'This username already exists'})
+        return res.status(400).json({ message: {text: 'This username already exists', type: 'error'}})
 
     } catch (err) {
-        return res.status(500).json({message: 'Some Server Error...'})
+        return res.status(500).json({ message: {text: 'Some Server Error...', type: 'error'}})
     }
 })
 
@@ -113,7 +119,7 @@ router.use('/refreshtokens', async (req, res) => {
 
         // refreshtoken availability check
         if (!refreshToken) {
-            return res.status(401).json({message: 'Invalid authorization, please log in again'})
+            return res.status(401).json({ message: {text: 'Invalid authorization, please log in again', type: 'error'}})
         }
 
         try {
@@ -123,12 +129,12 @@ router.use('/refreshtokens', async (req, res) => {
             // search a token owner
             const user = await User.findOne({login: payload.login})
             if (!user) {
-                return res.status(400).json({message: 'Invalid authorization, please log in again'})
+                return res.status(400).json({ message: {text: 'Invalid authorization, please log in again', type: 'error'}})
             }
 
             // tokens matching
             if (user.refreshToken !== refreshToken) {
-                return res.status(401).json({message: 'You need to log in'})
+                return res.status(401).json({ message: { text: 'You need to log in', type: 'error'}})
             }
 
             // create and updete refresh token
@@ -141,11 +147,11 @@ router.use('/refreshtokens', async (req, res) => {
                 .redirect(307, req.cookies.from)
         } catch (err) {
             // if token verify is failed
-            return res.status(401).json({message: 'You need to log in'})
+            return res.status(401).json({ message: { text: 'You need to log in', type: 'error'}})
         }
 
     } catch (err) {
-        return res.status(500).json({message: 'Some Server Error'})
+        return res.status(500).json({ message: { text: 'Some Server Error', type: 'error'}})
     }
 })
 
